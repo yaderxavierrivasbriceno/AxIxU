@@ -1,25 +1,22 @@
 # AXIXU - Inicio rapido
 
-## 1) Backend (Django + Stripe)
+## 1) Base de datos (PostgreSQL)
 
-Configura variables del backend:
+Opcional rapido con Docker:
 
 ```powershell
-cd C:\Users\yader\OneDrive\Desktop\AXIXU\backend
-copy .env.example .env
+docker run --name axixu-postgres -e POSTGRES_DB=axixu -e POSTGRES_USER=axixu -e POSTGRES_PASSWORD=axixu -p 5432:5432 -d postgres:16
 ```
 
-Edita `backend/.env` con tu clave secreta de Stripe:
-
-```env
-STRIPE_SECRET_KEY=tu_sk_test
-```
+## 2) Backend (Django)
 
 Instala dependencias y arranca backend:
 
 ```powershell
+cd C:\Users\yader\OneDrive\Desktop\AXIXU\backend
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+copy .env.example .env
 python manage.py migrate
 python manage.py runserver
 ```
@@ -29,30 +26,22 @@ Backend en navegador:
 - http://127.0.0.1:8000/health/
 - http://127.0.0.1:8000/admin/
 
-Endpoint de Stripe (backend):
-
-- `POST http://127.0.0.1:8000/api/payments/create-checkout-session/`
-
-## 2) Frontend (Next.js)
-
-Configura variables del frontend:
-
-```powershell
-cd C:\Users\yader\OneDrive\Desktop\AXIXU\frontend\nextjs
-copy .env.example .env.local
-```
-
-Edita `frontend/nextjs/.env.local` y coloca tus claves:
+Variables de entorno minimas en `backend/.env`:
 
 ```env
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=tu_clave_google_maps
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=tu_pk_test
-NEXT_PUBLIC_BACKEND_URL=http://127.0.0.1:8000
+POSTGRES_DB=axixu
+POSTGRES_USER=axixu
+POSTGRES_PASSWORD=axixu
+POSTGRES_HOST=127.0.0.1
+POSTGRES_PORT=5432
 ```
+
+## 3) Frontend (Next.js)
 
 Arranca frontend:
 
 ```powershell
+cd C:\Users\yader\OneDrive\Desktop\AXIXU\frontend\nextjs
 npm install
 npm run dev
 ```
@@ -60,10 +49,10 @@ npm run dev
 Frontend en navegador:
 
 - http://localhost:3000
-- http://localhost:3000/mapa
-- http://localhost:3000/pago
+- http://localhost:3000/idiomas
+- http://localhost:3000/agentes-ia
 
-## 3) Crear usuario admin de Django
+## 4) Crear usuario admin de Django
 
 ```powershell
 cd C:\Users\yader\OneDrive\Desktop\AXIXU\backend
@@ -71,10 +60,38 @@ cd C:\Users\yader\OneDrive\Desktop\AXIXU\backend
 python manage.py createsuperuser
 ```
 
-## 4) Seguridad de claves
+## 5) Seguridad de entorno
 
-- `pk_test` (publica): frontend.
-- `sk_test` (privada): solo backend.
-- `whsec` (firma webhook): solo backend.
 - Nunca subas `.env` ni `.env.local` a GitHub.
-- Si compartes una clave en chat/publico, rotala en Stripe.
+- Usa `DJANGO_SECRET_KEY` propia en produccion.
+
+## 6) Deploy (Vercel + Render)
+
+Frontend (Vercel):
+- Root del proyecto: `frontend/nextjs`
+- Env: `NEXT_PUBLIC_BACKEND_URL=https://TU_BACKEND.onrender.com`
+
+Backend (Render web service):
+- Root directory: `backend`
+- Build command:
+```bash
+pip install -r requirements.txt && python manage.py collectstatic --no-input
+```
+- Start command:
+```bash
+gunicorn core.wsgi:application
+```
+
+Variables recomendadas en Render backend:
+```env
+DJANGO_SECRET_KEY=tu_secreto_seguro
+DJANGO_DEBUG=false
+DJANGO_ALLOWED_HOSTS=tu-backend.onrender.com
+CORS_ALLOWED_ORIGINS=https://tu-frontend.vercel.app
+CSRF_TRUSTED_ORIGINS=https://tu-frontend.vercel.app
+DATABASE_URL=postgresql://...
+```
+
+Notas:
+- Si usas previews de Vercel, agrega `CORS_ALLOWED_ORIGIN_REGEXES` para permitir subdominios preview.
+- Tienes un blueprint base en `render.yaml` que puedes importar en Render.

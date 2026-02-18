@@ -1,26 +1,72 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ax-bg: #f4f7ef;
+  --ax-surface: #ffffff;
+  --ax-ink: #172316;
+  --ax-muted: #4a5a48;
+  --ax-primary: #0d9f6f;
+  --ax-primary-soft: #d6f6ea;
+  --ax-accent: #ff7b44;
+  --ax-border: #d8dfd1;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--ax-bg);
+  --color-foreground: var(--ax-ink);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ax-ink);
+  font-family: var(--font-body), "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 12% 18%, #ffe2ce 0, transparent 36%),
+    radial-gradient(circle at 88% 0%, #d8fff0 0, transparent 34%),
+    var(--ax-bg);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), serif;
+}
+
+.ax-card {
+  border: 1px solid var(--ax-border);
+  background: color-mix(in srgb, var(--ax-surface) 92%, #e8f5e9 8%);
+}
+
+.ax-gradient-text {
+  background: linear-gradient(90deg, #0a7f58 0%, #ff7b44 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ax-fade-up {
+  animation: fadeUp 0.65s ease both;
+}
+
+.ax-fade-up-delay {
+  animation: fadeUp 0.75s ease 0.12s both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

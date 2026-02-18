@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: axixu-backend
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --no-input
+    startCommand: gunicorn core.wsgi:application
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: "axixu-backend.onrender.com"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://axixu.vercel.app"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://axixu.vercel.app"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: axixu-db
+          property: connectionString
+
+databases:
+  - name: axixu-db
+    plan: free
